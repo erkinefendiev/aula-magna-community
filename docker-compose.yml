@@ -1,0 +1,24 @@
+# Run Aula Magna Community Edition with one command:  docker compose up -d
+# Then open http://localhost:3080 and sign in with the admin account printed in
+# the logs (docker compose logs). Your whole school lives in the ./data volume.
+
+services:
+  aula-magna:
+    build: .
+    # Or use a prebuilt image instead of building:
+    # image: ghcr.io/aula-magna/community:latest
+    container_name: aula-magna-community
+    restart: unless-stopped
+    ports:
+      - "3080:3080"
+    environment:
+      # CHANGE THIS to a long random string (keeps logins secure across restarts).
+      SESSION_SECRET: "change-me-to-a-long-random-string"
+      # First-run admin (only used when the database is empty).
+      ADMIN_EMAIL: "admin@school.edu"
+      ADMIN_PASSWORD: "admin"
+      ADMIN_NAME: "School Admin"
+      SCHOOL_NAME: "Your School"
+    volumes:
+      # Your school's single SQLite file — back up by copying this folder.
+      - ./data:/data

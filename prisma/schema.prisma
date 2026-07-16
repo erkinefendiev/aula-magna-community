@@ -1,0 +1,228 @@
+// Aula Magna Community Edition — the free, self-hosted system of record.
+//
+// SINGLE SCHOOL, SINGLE FILE. No multi-tenant columns, no billing, no cloud
+// services. SQLite so the whole school's data is one file you can copy to back
+// up. Everything here is deliberately MANUAL (mark attendance / enter grades by
+// hand) — the time-saving automation lives in the Cloud edition.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── People ──────────────────────────────────────────────────────────────────
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  role           String // "ADMIN" | "PROFESSOR" | "STUDENT"
+  hashedPassword String
+  createdAt      DateTime @default(now())
+
+  student   StudentProfile?
+  professor ProfessorProfile?
+
+  enrollments Enrollment[]
+  taught      ClassSession[] @relation("ProfessorSessions")
+  attendance  Attendance[]
+  submissions Submission[]
+  threads     ForumThread[]
+  posts       ForumPost[]
+  news        News[]
+}
+
+model StudentProfile {
+  userId      String  @id
+  studentCode String  @unique
+  programme   String  @default("")
+  yearOfStudy Int     @default(1)
+  group       String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProfessorProfile {
+  userId     String  @id
+  staffCode  String  @unique
+  title      String?
+  department String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Courses & content ─────────────────────────────────────────────────────────
+model Course {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  programme String   @default("")
+  createdAt DateTime @default(now())
+
+  enrollments Enrollment[]
+  sessions    ClassSession[]
+  materials   Material[]
+  assignments AssignmentDef[]
+}
+
+model Enrollment {
+  id           String   @id @default(cuid())
+  studentId    String
+  courseId     String
+  academicYear String   @default("")
+  createdAt    DateTime @default(now())
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId, academicYear])
+  @@index([courseId])
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  courseId  String
+  week      Int      @default(1)
+  kind      String   @default("LINK") // "LINK" | "PDF" | "VIDEO" | "SLIDES" | "DOC" | "NOTE"
+  title     String
+  url       String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, week])
+}
+
+// ── Class sessions + MANUAL attendance ────────────────────────────────────────
+model ClassSession {
+  id          String   @id @default(cuid())
+  courseId    String
+  professorId String?
+  scheduledAt DateTime
+  durationMin Int      @default(90)
+  room        String?
+  topic       String?
+
+  course     Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  professor  User?        @relation("ProfessorSessions", fields: [professorId], references: [id], onDelete: SetNull)
+  attendance Attendance[]
+
+  @@index([courseId, scheduledAt])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  sessionId String
+  studentId String
+  status    String   @default("PRESENT") // "PRESENT" | "ABSENT" | "LATE"
+  markedAt  DateTime @default(now())
+
+  session ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+}
+
+// ── Basic gradebook (enter grades by hand) ────────────────────────────────────
+model AssignmentDef {
+  id        String   @id @default(cuid())
+  courseId  String
+  title     String
+  dueAt     DateTime?
+  weight    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@index([courseId])
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  assignmentId String
+  studentId    String
+  score        Int?
+  status       String   @default("PENDING") // "PENDING" | "GRADED"
+  gradedAt     DateTime?
+
+  assignment AssignmentDef @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+}
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+model Event {
+  id        String   @id @default(cuid())
+  title     String
+  startsAt  DateTime
+  endsAt    DateTime?
+  location  String?
+  kind      String   @default("EVENT") // "EVENT" | "EXAM" | "HOLIDAY" | "MEETING"
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([startsAt])
+}
+
+// ── Community: forum + news ────────────────────────────────────────────────────
+model ForumThread {
+  id        String   @id @default(cuid())
+  title     String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  posts  ForumPost[]
+
+  @@index([createdAt])
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
+model News {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}
+
+// ── Basic document storage (metadata + links/notes; files live on disk) ───────
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ── Local settings (school name, etc.) — one row ──────────────────────────────
+model Setting {
+  id         String @id @default("singleton")
+  schoolName String @default("Your School")
+}

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --electric: 79 70 229; /* indigo-ish "electric" */
+  --pink: 199 91 67; /* coral */
+  --ink: 30 41 59;
+  --ink-dark: 15 23 42;
+  --ink-400: 100 116 139;
+  --surface: 255 255 255;
+  --surface-soft: 248 250 252;
+  --surface-muted: 241 245 249;
+  --border: 226 232 240;
+  --success: 16 122 110;
+  --warning: 180 83 9;
+  --danger: 220 38 38;
+}
+
+body {
+  background: rgb(var(--surface-muted));
+  color: rgb(var(--ink));
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@layer components {
+  .am-card {
+    @apply rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(15,23,42,0.04)];
+  }
+  .am-btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .am-btn-primary {
+    @apply am-btn bg-electric text-white hover:brightness-110;
+  }
+  .am-btn-ghost {
+    @apply am-btn bg-surface text-ink-dark hover:bg-surface-soft;
+  }
+  .am-input {
+    @apply w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink-dark outline-none focus:border-electric;
+  }
+  .am-pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold;
+  }
+  .am-label {
+    @apply block text-[11px] font-bold uppercase tracking-widest text-ink-400 mb-1;
+  }
+  .am-th {
+    @apply text-left text-[11px] font-bold uppercase tracking-wider text-ink-400 px-3 py-2;
+  }
+  .am-td {
+    @apply px-3 py-2.5 text-sm text-ink-dark align-middle;
+  }
+}
