@@ -101,7 +101,7 @@ Copy it while the app is stopped, or use `sqlite3 community.db ".backup backup.d
 | AI early-warning / at-risk students | — | ✅ |
 | Careers, mentoring, alumni | — | ✅ |
 | Group messaging, Campus Coin | — | ✅ |
-| Mobile app (iOS + Android) | — | ✅ |
+| Native apps (iOS + Android) | — | beta |
 | Integrations (Zoom, LMS, webhooks) | — | ✅ |
 | White-label / custom domain | — (Powered-by footer) | ✅ |
 | Hosting, backups, updates, support | you run it | ✅ we run it |
@@ -117,3 +117,7 @@ Next.js 15 · Prisma · SQLite · a single container. No external services requi
 
 Not affiliated support — issues are self-diagnosed. The code is yours to read and
 adapt.
+
+## License
+
+[MIT](LICENSE). Use it, change it, run it for your school.

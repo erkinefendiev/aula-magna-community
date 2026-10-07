@@ -2,6 +2,7 @@
   "name": "aula-magna-community",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Aula Magna Community Edition — the free, self-hosted system of record for a single school.",
   "scripts": {
     "predev": "prisma generate && prisma db push --skip-generate",
