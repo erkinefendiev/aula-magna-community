@@ -14,6 +14,12 @@ leaves your machine.
 > **There is no technical support for the Community Edition.** It's free and
 > self-run. If you'd rather never touch a server, that's exactly what Cloud is for.
 
+![Home: students, courses, sessions and grades across the school](docs/screenshots/home.png)
+
+| Gradebook | Attendance | Students |
+|---|---|---|
+| ![Gradebook](docs/screenshots/gradebook.png) | ![Attendance](docs/screenshots/attendance.png) | ![Students](docs/screenshots/students.png) |
+
 ---
 
 ## What you need
@@ -28,7 +34,7 @@ leaves your machine.
 
 ```bash
 # 1. get the code
-git clone <this-repo> aula-magna-community && cd aula-magna-community
+git clone https://github.com/erkinefendiev/aula-magna-community.git && cd aula-magna-community
 
 # 2. (recommended) set a real SESSION_SECRET + admin details
 #    edit docker-compose.yml, or leave the defaults for a first look
@@ -51,13 +57,17 @@ folder.** To update: `git pull && docker compose up -d --build`.
 ## Option B — Plain Node (no Docker)
 
 ```bash
-git clone <this-repo> aula-magna-community && cd aula-magna-community
+git clone https://github.com/erkinefendiev/aula-magna-community.git && cd aula-magna-community
 cp .env.example .env          # then edit SESSION_SECRET + admin details
 npm install
 npm run setup                 # creates the SQLite database + admin account
 npm run build
 npm run start                 # serves on http://localhost:3080
 ```
+
+Want to look around first? `npm run db:seed:demo` fills the school with demo
+students, courses, sessions and grades (every demo password is `demo`). It only
+ever touches its own demo rows, so it is safe to run next to real data.
 
 Keep it running with a process manager (`pm2`, `systemd`) and put a reverse proxy
 in front for HTTPS + your domain.

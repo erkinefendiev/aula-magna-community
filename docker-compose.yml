@@ -5,8 +5,6 @@
 services:
   aula-magna:
     build: .
-    # Or use a prebuilt image instead of building:
-    # image: ghcr.io/aula-magna/community:latest
     container_name: aula-magna-community
     restart: unless-stopped
     ports:
